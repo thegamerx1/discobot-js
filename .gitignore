@@ -1,0 +1,10 @@
+# bot/.env
+# dashboard/.env
+
+
+*/.env
+*/node_modules
+*/json
+*/nodemon.json
+*/yarn.lock
+.vscode
