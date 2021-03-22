@@ -1,6 +1,12 @@
 <nav class="navbar" id="nav">
-	<a href="#" class="navbar-brand">
-		{{log @runtimeOptions}}
+	{{#if sidebar}}
+	<div class="navbar-content">
+		<button class="btn btn-action" onclick="halfmoon.toggleSidebar()">
+			<i class="fa fa-bars"></i>
+		</button>
+    </div>
+	{{/if}}
+	<a href="/" class="navbar-brand">
 		Discobot
 	</a>
 
@@ -14,14 +20,14 @@
 		{{#if user}}
 			{{#with user}}
 			<div class="dropdown with-arrow ml-auto h-full">
-				<button class="btn h-full d-inline-flex align-items-center" data-toggle="dropdown" type="button">
-					<span class="pr-5">{{username}}</span>
-					<img class="img-fluid rounded h-half" src="https://cdn.discordapp.com/avatars/{{id}}/{{avatar}}" alt="avatar">
-					<i class="fa fa-angle-down ml-5" aria-hidden="true"></i>
+				<button class="btn h-full d-flex align-items-center w-200 justify-content-end" data-toggle="dropdown" type="button">
+					<span class="text-truncate flex-fill">{{username}}</span>
+					<img class="px-5 img-fluid rounded h-half" src="https://cdn.discordapp.com/avatars/{{id}}/{{avatar}}">
+					<i class="fa fa-angle-down"></i>
 				</button>
-				<div class="dropdown-menu">
+				<div class="dropdown-menu dropdown-menu-right">
 					<a class="dropdown-item" href="/logout">Logout</a>
-					<a class="dropdown-item" href="/reload">Reload guilds</a>
+					<a class="dropdown-item" href="/reload">Reload</a>
 				</div>
 			</div>
 			{{/with}}
@@ -30,29 +36,22 @@
 		{{/if}}
 	</ul>
 	<div class="navbar-content d-md-none ml-auto">
-	<div class="dropdown with-arrow">
-		<button class="btn" data-toggle="dropdown">
-			Menu
-			<i class="fa fa-angle-down"></i>
-		</button>
-		<div class="dropdown-menu dropdown-menu-right w-200">
-			<a href="#" class="dropdown-item">Docs</a>
-			<a href="#" class="dropdown-item">Products</a>
-            <div class="dropdown-divider"></div>
-			{{#if user}}
-           		<div class="dropdown with-arrow">
-					<button class="btn" data-toggle="dropdown">
-						{{user.username}}
-						<i class="fa fa-angle-down"></i>
-					</button>
-				<div class="dropdown-menu">
+		<div class="dropdown with-arrow">
+			<button class="btn" data-toggle="dropdown">
+				Menu
+				<i class="fa fa-angle-down"></i>
+			</button>
+			<div class="dropdown-menu dropdown-menu-right w-200">
+				{{#if user}}
+					<h6 class="dropdown-header text-primary">Hello {{user.username}}</h6>
 					<a class="dropdown-item" href="/logout">Logout</a>
 					<a class="dropdown-item" href="/reload">Reload</a>
-				</div>
-				</div>
-			{{else}}
-				<button href="/login" class="btn btn-primary"><i class="fab fa-discord pr-5"></i> Login</button>
-			{{/if}}
+				{{else}}
+					<a href="/login" class="dropdown-item bg-primary"><i class="fab fa-discord pr-5"></i> Login</a>
+				{{/if}}
+				<div class="dropdown-divider"></div>
+				<a href="/" class="dropdown-item">Home</a>
+				<a href="/dashboard" class="dropdown-item">Dashboard</a>
 			</div>
 		</div>
 	</div>

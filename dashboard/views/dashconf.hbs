@@ -1,38 +1,62 @@
-
-{{@links}}
 {{#with guild}}
 <div class="content">
-	<form id="dashboard" class="form w-400">
-		<div class="form-group">
-			<label>Logs channel</label>
-			<div class="input-group">
-				<div class="input-group-prepend">
-					<span class="input-group-text">Edits channel</span>
-				</div>
-				<select name="editschannel" class="form-control channelSelector">
+	<div class="container d-none" id="dashboard">
+		<form id="logging">
+			<h3>Logging</h3>
+			<div class="form-group">
+				<label>Member joins</label>
+				<select name="joins" class="form-control channelSelector">
 					<option value="0">None</option>
 				</select>
 			</div>
-		</div>
-		<div class="form-group">
-			<label>Edits channel</label>
-			<div class="input-group">
-				<div class="input-group-prepend">
-					<span class="input-group-text">Joins channel</span>
-				</div>
-				<select name="joinschannel" class="form-control channelSelector">
+			<div class="form-group">
+				<label>Message edits</label>
+				<select name="edits" class="form-control channelSelector">
 					<option value="0">None</option>
 				</select>
 			</div>
-		</div>
-		<input class="btn btn-primary" type="submit" value="Save">
-	</form>
+			<div class="form-group">
+				<label>Message deletes</label>
+				<select name="deletes" class="form-control channelSelector">
+					<option value="0">None</option>
+				</select>
+			</div>
+		</form>
+		<form id="commands">
+			<h3>Commands</h3>
+			<div class="d-flex flex-row">
+				<div class="d-flex flex-column flex-fill">
+					<h4>Disabled</h4>
+					<div name="disabled">
+						{{#each data.disabled_commands}}
+							<div class="container border font-size-16 p-5">{{this}}</div>
+						{{/each}}
+					</div>
+				</div>
+				<div class="d-flex flex-column flex-fill">
+					<h4>Enabled</h4>
+					<div name="enabled">
+						{{#each data.enabled_commands}}
+							<div class="container border font-size-16 p-5">{{this}}</div>
+						{{/each}}
+					</div>
+				</div>
+			</div>
+		</form>
+	</div>
+	<div id="changes" class="d-flex flex-row position-sticky bottom-0 py-5 m-0 w-full card align-items-center">
+		<button class="btn btn-primary" onclick="Submit()">Save</button>
+		<button class="btn btn-link text-danger" onclick="Reset()">Reset</button>
+		<i class="fas fa-cog fa-spin fa-2x d-none"></i>
+		<p class="ml-auto">Changes detected</p>
+	</div>
 </div>
 
 <script>
-	channels = {{{dump channels}}}
-	id = "{{id}}"
-	form = {{{dump form}}}
+	CHANNELS = {{{dump channels}}}
+	ID = "{{id}}"
+	FORM = {{{dump data}}}
 </script>
 {{/with}}
 <script src="/js/dashboard.js" defer="true"></script>
+<script src="/lib/sortable.js"></script>

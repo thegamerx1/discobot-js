@@ -1,27 +1,26 @@
 <!DOCTYPE html>
-<html lang="en">
+<html class="auto-scaling-disabled">
 <head>
-	<meta charset="utf-8"/>
-	<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1"/>
-	<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0"/>
-	<meta name="viewport" content="width=device-width"/>
-	<title>Discobot - {{title}}</title>
-	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/halfmoon@1.1.1/css/halfmoon-variables.min.css" />
-	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.2/css/all.min.css" />
+	{{> head}}
 </head>
-<body class="dark-mode">
-	<div class="page-wrapper with-navbar">
+<body class="dark-mode with-custom-webkit-scrollbars with-custom-css-scrollbars">
+	<div
+		class="page-wrapper with-navbar {{#if sidebar}}with-sidebar" data-sidebar-type="overlayed-sm-and-down{{/if}}">
+		<div class="sidebar-overlay" onclick="halfmoon.toggleSidebar()"></div>
 		{{> nav}}
 		<div class="sticky-alerts"></div>
+		{{#if sidebar}}
+			{{> dashboardSide}}
+		{{/if}}
 		<div class="content-wrapper">
-			<div class="progress rounded-0 d-none progress-bar-animated">
+			<div class="progress rounded-0 d-none progress-bar-animated" id="pageProgressC">
 				<div class="progress-bar" id="pageProgress"></div>
 	 		 </div>
 			{{{body}}}
 		</div>
 	</div>
 	<script src="/js.js" defer="true"></script>
-	<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-	<script src="https://cdn.jsdelivr.net/npm/halfmoon@1.1.1/js/halfmoon.min.js"></script>
+	<script src="/lib/jquery.js"></script>
+	<script src="/lib/halfmoon.js"></script>
 </body>
 </html>

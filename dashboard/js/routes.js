@@ -4,6 +4,8 @@ const Discord = require("discord.js")
 const http = require("http")
 botTalk.init(21901, "localhost")
 
+var lastCommands = []
+
 const oauth = new DiscordOauth2({
 	clientId: process.env.client_id,
     clientSecret: process.env.client_secret,
@@ -15,7 +17,20 @@ function notLoggedIn(req) {
 }
 
 function renderError(res, code, more) {
-	res.render("error", {code: code, more: more, desc: http.STATUS_CODES[code], layout: false})
+	res.render("error", {code: code, more: more, desc: http.STATUS_CODES[code], layout: false, title: code})
+}
+
+function parseCommands(commands, disabledcmd) {
+	var disabled = []
+	var enabled = []
+	commands.forEach(cmd => {
+		if (disabledcmd.includes(cmd)) {
+			disabled.push(cmd)
+		} else {
+			enabled.push(cmd)
+		}
+	})
+	return {disabled, enabled}
 }
 
 class routes {
@@ -30,9 +45,40 @@ class routes {
 		if (notLoggedIn(req))
 			return res.redirect("/login")
 
-		res.render("dashboard", {user: req.session.user, title: "Dashboard", guilds: req.session.guilds})
+		res.render("dashboard", {
+			user: req.session.user,
+			title: "Dashboard",
+			guilds: req.session.guilds
+		})
 	}
 
+
+	dashDemo(req, res) {
+		const data = {
+			channels: [
+				{name: "DemoJoins", id: 111},
+				{name: "DemoEdits", id: 222}
+			],
+			commands: ["code", "hl", "8ball", "avatar", "urban"],
+			data: {
+				logging: {
+					joins: 111,
+					edits: 222,
+					deletes: 333
+				},
+				disabled_commands: [
+					"code",
+					"hl",
+					"8ball"
+				],
+			},
+			id: "demo"
+		}
+		const {enabled, disabled} = parseCommands(data.commands, data.data.disabled_commands)
+		data.data.enabled_commands = enabled
+		data.data.disabled_commands = disabled
+		res.render("dashconf", {user: {username: "pogo"}, title: "Dashboard", guild: data, sidebar: true})
+	}
 
 	async dashConfig(req, res) {
 		if (notLoggedIn(req)) {
@@ -48,9 +94,15 @@ class routes {
 		if (found) {
 			try {
 				const data = await botTalk.ask("guild", {id: found})
-				res.render("dashconf", {user: req.session.user, title: "Dashboard", guild: data})
+				console.log(data)
+				const {enabled, disabled} = parseCommands(data.commands, data.data.disabled_commands)
+				data.data.enabled_commands = enabled
+				data.data.disabled_commands = disabled
+				lastCommands = data.commands
+				res.render("dashconf", {user: req.session.user, title: "Dashboard", guild: data, sidebar: true})
 			} catch (e) {
-				res.statusCode(e)
+				console.error(e)
+				renderError(res, 500)
 				return
 			}
 		} else {
@@ -59,9 +111,12 @@ class routes {
 	}
 
 	async dashSave(req, res) {
-		const required = ["joinschannel", "editschannel"]
+		const required = {
+			logging: ["edits", "deletes", "joins"],
+			commands: ["disabled_commands"]
+		}
 		if (notLoggedIn(req)) {
-			res.redirect("/login")
+			res.status(401).send("")
 			return
 		}
 		var found = false
@@ -70,17 +125,29 @@ class routes {
 				found = guild.id
 			}
 		}
+		const type = req.params.what
 
 		if (!found)
-			return res.status(401).send("")
+			return res.status(403).send("You dont have access to that guild")
 
-		for (const value of required) {
+		if (!(type in required))
+			return res.status(400).send("")
+
+		for (const value of required[type]) {
 			if (!req.body[value])
 				return res.status(400).send("")
 		}
 
+		var valid = true
+		if (type == "commands") {
+			req.body.disabled_commands.forEach(disabled => {
+				if (!lastCommands.includes(disabled)) valid = false
+			})
+		}
+		if (!valid) return res.status(400).send("Invalid commands sent")
+
 		try {
-			await botTalk.ask("save", {data: req.body, id: found})
+			await botTalk.ask("save", {data: req.body, type: type, id: found})
 			res.status(204).send("")
 		} catch (e) {
 			console.error(e)

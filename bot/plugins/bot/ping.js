@@ -2,7 +2,6 @@ const Discord = require("discord.js")
 const plugin = require("../plugin")
 const ColorScale = require("color-scales")
 
-
 class extension extends plugin.Base {
 	meta = {
 		name: "ping",

@@ -1,5 +1,5 @@
 require("dotenv").config()
-const routes = require("./routes")
+const routes = require("./js/routes")
 
 const express = require("express")
 const session = require("express-session")
@@ -10,8 +10,18 @@ const Handlebars = require("express-handlebars")
 const compression = require("compression")
 const fs = require("fs")
 
-const app = express()
+var app = express()
 
+app.use(express.static("public/"))
+app.use(compression())
+app.use(helmet({contentSecurityPolicy: false}))
+app.use(express.urlencoded({extended: true}))
+app.use(session({
+	secret: process.env.secret,
+	resave: true,
+	saveUninitialized: true,
+	httpOnly: true
+}))
 app.engine("hbs", Handlebars({
 	defaultLayout: "main",
 	extname: ".hbs",
@@ -20,29 +30,14 @@ app.engine("hbs", Handlebars({
 		dump: (obj) => JSON.stringify(obj)
 	}
 }))
-
-app.use(express.static("public/"))
-app.use(compression())
-app.use(helmet({
-	contentSecurityPolicy: false
-}))
-
-app.use(session({
-	secret: process.env.secret,
-	resave: true,
-	saveUninitialized: true,
-	httpOnly: true
-}))
-
-app.use(express.urlencoded({extended: true}))
 app.set("view engine", "hbs")
-
 
 app.get("/", routes.index)
 app.get("/dashboard", routes.dashboard)
+app.get("/dashboard/demo", routes.dashDemo)
 app.get("/dashboard/:id", routes.dashConfig)
+app.post("/save/:what/:id", routes.dashSave)
 app.get("/login", routes.login)
-app.post("/save/:id", routes.dashSave)
 app.get("/logout", routes.logout)
 app.get("/reload", routes.reload)
 app.get("*", routes.notfound)
@@ -58,8 +53,12 @@ if (process.env.NODE_ENV == "production") {
 		cert: fs.readFileSync("keys/certificate.crt", "utf-8")
 	}
 
-	http.createServer(redirect).listen(80)
-	https.createServer(keys, app).listen(443)
+	http.createServer(redirect).listen(80, ready)
+	https.createServer(keys, app).listen(443, ready)
 } else {
-	http.createServer(app).listen(80)
+	http.createServer(app).listen(80, ready)
+}
+
+function ready() {
+	console.debug("Ready!")
 }
