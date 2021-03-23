@@ -1,7 +1,7 @@
-<div class="container-fluid" id="tabby">
+<div class="container-fluid h-full" id="tabby">
 	<div id="manage" class="tabby">
 		<div class="d-flex flex-column">
-			<div class="card" id="uptimes">
+			<div class="card mb-0">
 				<div class="form-inline">
 					<label class="w-100">Bot</label>
 					<input type="text" class="form-control" value="Loading.." name="bot">
@@ -15,11 +15,19 @@
 					<input type="text" class="form-control" value="Loading.." name="system">
 				</div>
 			</div>
+			<div class="card mb-0">
+				<div class="form-inline d-flex">
+					<label class="w-100">Memory usage</label>
+					<div class="progress rounded-0 flex-fill" style="height: 2em">
+						<div class="progress-bar" style="width: {{system.mem}}%">{{system.mem}}%</div>
+					</div>
+				</div>
+			</div>
 		</div>
 	</div>
-	<div id="logs" class="tabby mw-full">
-		<div class="overflow-scroll d-flex">
-			<pre class="overflow-scroll flex-fill"><code class="language-log overflow-scroll mh-full">{{logs}}</code></pre>
+	<div id="logs" class="tabby h-full">
+		<div class="h-full">
+			<pre class="m-0 h-full overflow-scroll"><code class="language-log">{{logs}}</code></pre>
 		</div>
 	</div>
 </div>

@@ -10,13 +10,15 @@ class Tabby {
 
 	switch(name) {
 		if (name instanceof HTMLElement) name = name.getAttribute(name)
+		if (this.current == name) return
+		this.current = name
 
 		if (this.before && this.before()) return
 
 		this.tabs.querySelectorAll(".tabby").forEach(e => {
 			if (e.getAttribute("id") == name) {
-				if (this.after) this.after(e)
 				e.style.display = null
+				if (this.after) this.after(e)
 			} else {
 				e.style.display = "none"
 			}

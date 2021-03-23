@@ -1,5 +1,13 @@
 const page1 = $("#tabby")
 const tabby = new Tabby(page1[0], $(".sidebar-menu")[0])
+tabby.after = (e) => {
+	console.log(e)
+	if (e.getAttribute("id") == "logs") {
+		let scrolly = e.querySelector("pre")
+		scrolly.scrollTop = scrolly.scrollHeight
+	}
+}
+
 tabby.switch("manage")
 uptimes.now = performance.now()
 uptimes.bot = parseFloat(uptimes.bot)

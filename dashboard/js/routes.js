@@ -4,7 +4,6 @@ const Discord = require("discord.js")
 const http = require("http")
 const os = require("os")
 const fs = require("fs")
-const { exec } = require("child_process")
 botTalk.init(21901, "localhost")
 
 var lastCommands = []
@@ -12,16 +11,15 @@ var botAlive = false
 
 setLastCommands()
 
-setInterval(setLastCommands, 1*60*1000)
-
 async function setLastCommands() {
 	try {
 		lastCommands = await botTalk.ask("commands")
 		botAlive = true
+		setTimeout(setLastCommands, 30000)
 	} catch {
 		console.error("Error retrieving commands")
 		botAlive = false
-		setTimeout(setLastCommands, 500)
+		setTimeout(setLastCommands, 5000)
 	}
 }
 
@@ -69,7 +67,7 @@ class routes {
 		}
 
 		var data = {uptime: {}}
-		var logs = ""
+		var logs = "Not available"
 		if (botAlive) {
 			try {
 				data.uptime.bot = (await botTalk.ask("uptime")).uptime
@@ -77,10 +75,20 @@ class routes {
 				data.uptime.bot = "Down"
 			}
 			logs = (await botTalk.ask("logs")).logs
+		} else {
+			try {
+				logs = fs.readFileSync(process.env.log, "utf-8")
+			} catch {}
+		}
+
+		const system = {
+			mem: Math.floor(100-os.freemem()/os.totalmem()*100)
 		}
 		data.uptime.dashboard = process.uptime()*1000
 		data.uptime.system = os.uptime()*1000
-		res.render("admin", {user: req.session.user, title: "Admin", sidebar: "admin", uptimes: data.uptime, logs: logs})
+		res.render("admin", {user: req.session.user, title: "Admin", sidebar: "admin",
+			uptimes: data.uptime, logs: logs, system: system
+		})
 	}
 
 	notfound(req, res) {
