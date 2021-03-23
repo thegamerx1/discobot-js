@@ -1,7 +1,3 @@
-# bot/.env
-# dashboard/.env
-
-
 */.env
 */node_modules
 */json

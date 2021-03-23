@@ -1,0 +1,32 @@
+<div class="container-fluid" id="tabby">
+	<div id="manage" class="tabby">
+		<div class="d-flex flex-column">
+			<div class="card" id="uptimes">
+				<div class="form-inline">
+					<label class="w-100">Bot</label>
+					<input type="text" class="form-control" value="Loading.." name="bot">
+				</div>
+				<div class="form-inline">
+					<label class="w-100">Dashboard</label>
+					<input type="text" class="form-control" value="Loading.." name="dashboard">
+				</div>
+				<div class="form-inline">
+					<label class="w-100">System</label>
+					<input type="text" class="form-control" value="Loading.." name="system">
+				</div>
+			</div>
+		</div>
+	</div>
+	<div id="logs" class="tabby mw-full">
+		<div class="overflow-scroll d-flex">
+			<pre class="overflow-scroll flex-fill"><code class="language-log overflow-scroll mh-full">{{logs}}</code></pre>
+		</div>
+	</div>
+</div>
+<script>
+	const uptimes = {{{dump uptimes}}}
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/humanize-duration/3.25.1/humanize-duration.min.js"></script>
+<script src="/admin.js" defer="true"></script>
+<script src="/prism.js"></script>
+<link rel="stylesheet" href="/prism.css">

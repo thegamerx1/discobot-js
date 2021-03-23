@@ -9,8 +9,11 @@
 		<div class="sidebar-overlay" onclick="halfmoon.toggleSidebar()"></div>
 		{{> nav}}
 		<div class="sticky-alerts"></div>
-		{{#if sidebar}}
-			{{> dashboardSide}}
+		{{#if (eq sidebar "admin")}}
+			{{> sidebars/admin}}
+		{{/if}}
+		{{#if (eq sidebar "dashboard")}}
+			{{> sidebars/dashboard}}
 		{{/if}}
 		<div class="content-wrapper">
 			<div class="progress rounded-0 d-none progress-bar-animated" id="pageProgressC">
@@ -22,5 +25,6 @@
 	<script src="/js.js" defer="true"></script>
 	<script src="/lib/jquery.js"></script>
 	<script src="/lib/halfmoon.js"></script>
+	<script src="/lib/tabby.js"></script>
 </body>
 </html>

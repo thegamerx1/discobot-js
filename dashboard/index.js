@@ -33,13 +33,14 @@ app.engine("hbs", Handlebars({
 app.set("view engine", "hbs")
 
 app.get("/", routes.index)
-app.get("/dashboard", routes.dashboard)
+app.get("/guilds", routes.guilds)
 app.get("/dashboard/demo", routes.dashDemo)
-app.get("/dashboard/:id", routes.dashConfig)
+app.get("/dashboard/:id", routes.dashboard)
 app.post("/save/:what/:id", routes.dashSave)
 app.get("/login", routes.login)
 app.get("/logout", routes.logout)
 app.get("/reload", routes.reload)
+app.get("/admin", routes.admin)
 app.get("*", routes.notfound)
 
 if (process.env.NODE_ENV == "production") {

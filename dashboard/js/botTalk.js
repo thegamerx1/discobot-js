@@ -15,6 +15,7 @@ class connect {
 			socket.on("data", async data => {
 				data = data.toString()
 				try {
+					if (!isNaN(data) && data != 200) throw no
 					data = JSON.parse(data)
 				} catch {
 					reject(data)

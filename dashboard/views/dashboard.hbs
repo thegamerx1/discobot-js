@@ -1,27 +1,62 @@
-{{#if guilds}}
-	<div class="d-flex justify-content-center flex-wrap flex-row">
-		{{#each guilds}}
-			<a class="card shadow w-350 mw-full m-5 p-0 d-flex border" href="/dashboard/{{id}}">
-				<div class="d-flex w-50 h-50 m-10 align-self-center">
-					<div class="d-flex">
-						{{#if icon}}
-							<img src="https://cdn.discordapp.com/icons/{{id}}/{{icon}}.png" class="d-block w-50 h-50 rounded">
-						{{/if}}
+{{#with guild}}
+<div class="content">
+	<div class="container d-none" id="dashboard">
+		<form id="logging" class="tabby">
+			<h3>Logging</h3>
+			<div class="form-group">
+				<label>Member joins</label>
+				<select name="joins" class="form-control channelSelector">
+					<option value="0">None</option>
+				</select>
+			</div>
+			<div class="form-group">
+				<label>Message edits</label>
+				<select name="edits" class="form-control channelSelector">
+					<option value="0">None</option>
+				</select>
+			</div>
+			<div class="form-group">
+				<label>Message deletes</label>
+				<select name="deletes" class="form-control channelSelector">
+					<option value="0">None</option>
+				</select>
+			</div>
+		</form>
+		<form id="commands" class="tabby">
+			<h3>Commands</h3>
+			<div class="d-flex flex-row">
+				<div class="d-flex flex-column flex-fill">
+					<h4>Disabled</h4>
+					<div name="disabled">
+						{{#each data.disabled_commands}}
+							<div class="container border font-size-16 p-5">{{this}}</div>
+						{{/each}}
 					</div>
 				</div>
-				<div class="flex-grow-1 overflow-y-hidden d-flex align-items-center position-relative h-120">
-					<div class="p-10 w-full m-auto">
-						<h5 class="card-title">{{name}}</h5>
+				<div class="d-flex flex-column flex-fill">
+					<h4>Enabled</h4>
+					<div name="enabled">
+						{{#each data.enabled_commands}}
+							<div class="container border font-size-16 p-5">{{this}}</div>
+						{{/each}}
 					</div>
 				</div>
-			</a>
-		{{/each}}
+			</div>
+		</form>
 	</div>
-{{else}}
-	<div class="card row py-auto d-none" id="addit">
-		<h2 class="card-title">
-			You don't have the bot in any servers where you can manage it.
-		</h2>
-		{{> addbot}}
+	<div id="changes" class="d-flex flex-row position-sticky bottom-0 py-5 m-0 w-full card align-items-center">
+		<button class="btn btn-primary" onclick="Submit()">Save</button>
+		<button class="btn btn-link text-danger" onclick="Reset()">Reset</button>
+		<i class="fas fa-cog fa-spin fa-2x d-none"></i>
+		<p class="ml-auto">Changes detected</p>
 	</div>
-{{/if}}
+</div>
+
+<script>
+	CHANNELS = {{{dump channels}}}
+	ID = "{{id}}"
+	FORM = {{{dump data}}}
+</script>
+{{/with}}
+<script src="/dashboard.js" defer="true"></script>
+<script src="/lib/sortable.js"></script>

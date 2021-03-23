@@ -2,6 +2,19 @@ const dashboard = $("#dashboard")
 const changes = $("#changes")
 var changesDone = false
 var disabledCommands = []
+var currentSerialized = null
+
+const tabby = new Tabby(dashboard[0], $(".sidebar-menu")[0])
+tabby.before = () => changesDone
+tabby.after = (e) => {
+	e = $(e)
+	currentForm = e
+	if (e.attr("id") == "commands") {
+		globalThis.currentSerialized = serializeCommands()
+	} else {
+		globalThis.currentSerialized = e.serialize()
+	}
+}
 
 dashboard.find(".channelSelector").each((i ,e) => {
 	CHANNELS.forEach(channel => {
@@ -23,23 +36,23 @@ dashboard.find("input, select").each((i, e) => {
 })
 
 new Sortable($("#commands [name=disabled]")[0], {
-    group: "shared",
+	group: "shared",
     animation: 50,
 	onRemove: verifyChanges,
 	onAdd: verifyChanges
 })
 
 new Sortable($("#commands [name=enabled]")[0], {
-    group: "shared",
+	group: "shared",
     animation: 50
 })
 
-dashboard.removeClass("d-none")
-$(".sidebar-menu a")[0].click()
-$("#dashboard form").submit(false)
+tabby.switch("logging")
+dashboard.find("form").submit(false)
 verifyChanges()
+dashboard.removeClass("d-none")
 
-function Submit(btn) {
+function Submit() {
 	changes.addClass("loadd")
 	changes.find("i").removeClass("d-none")
 	dashboard.addClass("loadd")
@@ -47,20 +60,14 @@ function Submit(btn) {
 	var out = undefined
 	var serialized = undefined
 	if (currentForm.attr("id") == "commands") {
-		var data  = []
-		for (const disabled of $("#commands [name=disabled]")[0].children) {
-			console.log(disabled)
-			data.push(disabled.textContent)
-		}
-
-		serialized = data.sort()
+		serialized = serializeCommands()
 		out = {disabled_commands: serialized}
 	} else {
 		serialized = currentForm.serialize()
 		out = serialized
 	}
 
-	console.log(out)
+	console.debug(out)
 
 	$.post(`/save/${currentForm.attr("id")}/${ID}`, out, () => {
 		currentSerialized = serialized
@@ -84,45 +91,19 @@ function fix() {
 	changes.find("i").addClass("d-none")
 }
 
-function setTabby(e, to) {
-	if (typeof currentForm != "undefined" && currentForm.serialize() != currentSerialized) {
-		return
+
+function serializeCommands() {
+	let data = []
+	for (const disabled of $("#commands [name=disabled]")[0].children) {
+		data.push(disabled.textContent)
 	}
-	$("#dashboard form").each((i, e) => {
-		e = $(e)
-		if (changesDone) return
-
-		if (e.attr("id") == to) {
-			currentForm = e
-			if (e.attr("id") == "commands") {
-				currentSerialized = []
-				for (const disabled of $("#commands [name=disabled]")[0].children) {
-					currentSerialized.push(disabled.textContent)
-				}
-				currentSerialized = currentSerialized.sort()
-			} else {
-				currentSerialized = e.serialize()
-			}
-			e.show()
-		} else {
-			e.hide()
-		}
-	})
-
-	for (const elem of e.parentElement.children) {
-		elem.classList.remove("active")
-	}
-
-	e.classList.add("active")
+	return data.sort()
 }
 
 function verifyChanges() {
 	if (currentForm.attr("id") == "commands") {
-		let serialized = []
-		for (const disabled of $("#commands [name=disabled]")[0].children) {
-			serialized.push(disabled.textContent)
-		}
-		changesDone = (serialized.sort().toString() !== currentSerialized.toString())
+		let serialized = serializeCommands()
+		changesDone = (serialized.toString() !== currentSerialized.toString())
 	} else {
 		changesDone = (currentForm.serialize() !== currentSerialized)
 	}

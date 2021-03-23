@@ -2,9 +2,35 @@ const botTalk = require("./botTalk")
 const DiscordOauth2 = require("discord-oauth2")
 const Discord = require("discord.js")
 const http = require("http")
+const os = require("os")
+const fs = require("fs")
+const { exec } = require("child_process")
 botTalk.init(21901, "localhost")
 
 var lastCommands = []
+var botAlive = false
+
+setLastCommands()
+
+setInterval(setLastCommands, 1*60*1000)
+
+async function setLastCommands() {
+	try {
+		lastCommands = await botTalk.ask("commands")
+		botAlive = true
+	} catch {
+		console.error("Error retrieving commands")
+		botAlive = false
+		setTimeout(setLastCommands, 500)
+	}
+}
+
+function notAlive(res) {
+	if (!botAlive) {
+		renderError(res, 503, "Currently unavailable")
+		return true
+	}
+}
 
 const oauth = new DiscordOauth2({
 	clientId: process.env.client_id,
@@ -34,30 +60,59 @@ function parseCommands(commands, disabledcmd) {
 }
 
 class routes {
+	async admin(req, res) {
+		if (process.env.NODE_ENV == "production") {
+			if (notLoggedIn(req))
+				return res.redirect("/login")
+			if (req.session.user.id !== process.env.owner)
+				return renderError(res, 403)
+		}
+
+		var data = {uptime: {}}
+		var logs = ""
+		if (botAlive) {
+			try {
+				data.uptime.bot = (await botTalk.ask("uptime")).uptime
+			} catch {
+				data.uptime.bot = "Down"
+			}
+			logs = (await botTalk.ask("logs")).logs
+		}
+		data.uptime.dashboard = process.uptime()*1000
+		data.uptime.system = os.uptime()*1000
+		res.render("admin", {user: req.session.user, title: "Admin", sidebar: "admin", uptimes: data.uptime, logs: logs})
+	}
+
 	notfound(req, res) {
 		renderError(res, 404, "The file you requested could not be found.")
 	}
+
 	index(req, res) {
 		res.render("index", {user: req.session.user, title: "Home"})
 	}
 
-	dashboard(req, res) {
+	guilds(req, res) {
+		if (notAlive(res))
+			return
 		if (notLoggedIn(req))
 			return res.redirect("/login")
 
-		res.render("dashboard", {
+		res.render("guilds", {
 			user: req.session.user,
-			title: "Dashboard",
+			title: "Guilds",
 			guilds: req.session.guilds
 		})
 	}
 
 
 	dashDemo(req, res) {
+		if (notAlive(res))
+			return
 		const data = {
 			channels: [
 				{name: "DemoJoins", id: 111},
-				{name: "DemoEdits", id: 222}
+				{name: "DemoEdits", id: 222},
+				{name: "DemoDeletes", id: 333}
 			],
 			commands: ["code", "hl", "8ball", "avatar", "urban"],
 			data: {
@@ -74,17 +129,18 @@ class routes {
 			},
 			id: "demo"
 		}
-		const {enabled, disabled} = parseCommands(data.commands, data.data.disabled_commands)
+		const {enabled, disabled} = parseCommands(lastCommands, data.data.disabled_commands)
 		data.data.enabled_commands = enabled
 		data.data.disabled_commands = disabled
-		res.render("dashconf", {user: {username: "pogo"}, title: "Dashboard", guild: data, sidebar: true})
+		res.render("dashboard", {user: {username: "pogo"}, title: "Dashboard", guild: data, sidebar: "dashboard"})
 	}
 
-	async dashConfig(req, res) {
-		if (notLoggedIn(req)) {
-			res.redirect("/login")
+	async dashboard(req, res) {
+		if (notAlive(res))
 			return
-		}
+		if (notLoggedIn(req))
+			return res.redirect("/login")
+
 		var found = false
 		for (const guild of req.session.guilds) {
 			if (guild.id == req.params.id) {
@@ -94,12 +150,10 @@ class routes {
 		if (found) {
 			try {
 				const data = await botTalk.ask("guild", {id: found})
-				console.log(data)
-				const {enabled, disabled} = parseCommands(data.commands, data.data.disabled_commands)
+				const {enabled, disabled} = parseCommands(lastCommands, data.data.disabled_commands)
 				data.data.enabled_commands = enabled
 				data.data.disabled_commands = disabled
-				lastCommands = data.commands
-				res.render("dashconf", {user: req.session.user, title: "Dashboard", guild: data, sidebar: true})
+				res.render("dashboard", {user: req.session.user, title: "Dashboard", guild: data, sidebar: "dashboard"})
 			} catch (e) {
 				console.error(e)
 				renderError(res, 500)
@@ -111,24 +165,27 @@ class routes {
 	}
 
 	async dashSave(req, res) {
+		if (notAlive(res))
+			return
 		const required = {
 			logging: ["edits", "deletes", "joins"],
-			commands: ["disabled_commands"]
-		}
-		if (notLoggedIn(req)) {
-			res.status(401).send("")
-			return
+			commands: []
 		}
 		var found = false
-		for (const guild of req.session.guilds) {
-			if (guild.id == req.params.id) {
-				found = guild.id
+		if (req.params.id != "demo") {
+			if (notLoggedIn(req))
+				return res.status(401).send("")
+
+			for (const guild of req.session.guilds) {
+				if (guild.id == req.params.id) {
+					found = guild.id
+				}
 			}
+
+			if (!found)
+				return res.status(403).send("You dont have access to that guild")
 		}
 		const type = req.params.what
-
-		if (!found)
-			return res.status(403).send("You dont have access to that guild")
 
 		if (!(type in required))
 			return res.status(400).send("")
@@ -138,13 +195,18 @@ class routes {
 				return res.status(400).send("")
 		}
 
-		var valid = true
 		if (type == "commands") {
+			if (!req.body.disabled_commands) req.body.disabled_commands = []
+			var valid = true
 			req.body.disabled_commands.forEach(disabled => {
 				if (!lastCommands.includes(disabled)) valid = false
 			})
+			if (!valid) return res.status(400).send("Invalid commands sent")
 		}
-		if (!valid) return res.status(400).send("Invalid commands sent")
+
+		if (req.params.id == "demo") {
+			return res.status(200).send("No changes made: demo")
+		}
 
 		try {
 			await botTalk.ask("save", {data: req.body, type: type, id: found})
@@ -156,12 +218,8 @@ class routes {
 	}
 
 	async login(req, res) {
-		try {
-			await botTalk.ask("alive")
-		} catch {
-			return renderError(res, 503, "Login is currently unavailable")
-		}
-
+		if (notAlive(res))
+			return
 		if (!req.query.code)
 			return res.redirect(oauth.generateAuthUrl({scope: process.env.scopes}))
 
@@ -187,12 +245,13 @@ class routes {
 			try {
 				req.session.guilds = await botTalk.ask("IsIn", {guilds: goodGuilds})
 			} catch (e) {
-				renderError(res, 500, "Dashboard couldn't connect to the bot")
+				console.error(e)
+				renderError(res, 500)
 				return
 			}
 
 			req.session.user = user
-			res.redirect("/dashboard")
+			res.redirect("/guilds")
 		})
 	}
 

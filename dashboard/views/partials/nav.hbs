@@ -6,16 +6,14 @@
 		</button>
     </div>
 	{{/if}}
-	<a href="/" class="navbar-brand">
-		Discobot
-	</a>
+	<a href="/" class="navbar-brand">Discobot</a>
 
 	<ul class="navbar-nav d-none d-md-flex w-full">
 		<li class="nav-item {{#if (eq title "Home")}}active{{/if}}">
 			<a href="/" class="nav-link">Home</a>
 		</li>
-		<li class="nav-item {{#if (eq title "Dashboard")}}active{{/if}}">
-			<a href="/dashboard" class="nav-link">Dashboard</a>
+		<li class="nav-item {{#if (eq title "Guilds")}}active{{/if}}">
+			<a href="/guilds" class="nav-link">Dashboard</a>
 		</li>
 		{{#if user}}
 			{{#with user}}
@@ -51,7 +49,7 @@
 				{{/if}}
 				<div class="dropdown-divider"></div>
 				<a href="/" class="dropdown-item">Home</a>
-				<a href="/dashboard" class="dropdown-item">Dashboard</a>
+				<a href="/guilds" class="dropdown-item">Dashboard</a>
 			</div>
 		</div>
 	</div>
