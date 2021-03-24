@@ -47,10 +47,9 @@ new Sortable($("#commands [name=enabled]")[0], {
     animation: 50
 })
 
-tabby.switch("logging")
 dashboard.find("form").submit(false)
+tabby.enable("logging")
 verifyChanges()
-dashboard.removeClass("d-none")
 
 function Submit() {
 	changes.addClass("loadd")

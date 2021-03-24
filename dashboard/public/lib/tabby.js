@@ -4,8 +4,16 @@ class Tabby {
 		this.btns = btns
 
 		this.btns.querySelectorAll(".tabby").forEach(e => {
-			e.addEventListener("click", this.switch.bind(this, e.getAttribute("name")))
+			let name = e.getAttribute("name")
+			e.addEventListener("click", this.switch.bind(this, name))
 		})
+	}
+
+	enable(name) {
+		this.tabs.classList.remove("d-none")
+		let hash = window.location.hash.substr(1)
+		if (hash) var el = this.tabs.querySelector(".tabby#" + hash)
+		this.switch(el ? hash : name)
 	}
 
 	switch(name) {
@@ -15,6 +23,7 @@ class Tabby {
 
 		if (this.before && this.before()) return
 
+		window.history.pushState({}, "", "#" + name)
 		this.tabs.querySelectorAll(".tabby").forEach(e => {
 			if (e.getAttribute("id") == name) {
 				e.style.display = null

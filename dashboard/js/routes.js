@@ -68,9 +68,11 @@ class routes {
 
 		var data = {uptime: {}}
 		var logs = "Not available"
+		// var commands = null
 		if (botAlive) {
 			try {
 				data.uptime.bot = (await botTalk.ask("uptime")).uptime
+				// commands = await botTalk.ask("commandHistory")
 			} catch {
 				data.uptime.bot = "Down"
 			}
@@ -81,9 +83,11 @@ class routes {
 			} catch {}
 		}
 
+
 		const system = {
 			mem: Math.floor(100-os.freemem()/os.totalmem()*100)
 		}
+
 		data.uptime.dashboard = process.uptime()*1000
 		data.uptime.system = os.uptime()*1000
 		res.render("admin", {user: req.session.user, title: "Admin", sidebar: "admin",
