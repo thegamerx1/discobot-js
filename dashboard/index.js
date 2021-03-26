@@ -12,6 +12,23 @@ const fs = require("fs")
 
 var app = express()
 
+app.use((req, res, next) => {
+	switch (req.hostname) {
+		case "discobot.ml":
+			next()
+			return
+		case "www.discobot.ml":
+			res.redirect(301, "https://discobot.ml" + req.originalUrl)
+			return
+		case "localhost":
+			if (process.env.NODE_ENV !== "production") {
+				next()
+				return
+			}
+		default:
+			res.sendStatus(400)
+	}
+})
 app.use(express.static("public/"))
 app.use(compression())
 app.use(helmet({contentSecurityPolicy: false}))
@@ -42,7 +59,6 @@ app.get("/logout", routes.logout)
 app.get("/reload", routes.reload)
 app.get("/admin", routes.admin)
 app.get("*", routes.notfound)
-
 if (process.env.NODE_ENV == "production") {
 	const redirect = express()
 	redirect.get("*", (req, res) => {
