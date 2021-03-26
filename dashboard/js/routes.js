@@ -66,32 +66,31 @@ class routes {
 				return renderError(res, 403)
 		}
 
-		var data = {uptime: {}}
+		var data = {bot: 0}
 		var logs = "Not available"
-		// var commands = null
 		if (botAlive) {
 			try {
-				data.uptime.bot = (await botTalk.ask("uptime")).uptime
-				// commands = await botTalk.ask("commandHistory")
-			} catch {
-				data.uptime.bot = "Down"
-			}
-			logs = (await botTalk.ask("logs")).logs
+				data.bot = parseInt((await botTalk.ask("uptime")).uptime)
+				if (!req.query.data) logs = (await botTalk.ask("logs")).logs
+			} catch {}
 		} else {
 			try {
 				logs = fs.readFileSync(process.env.log, "utf-8")
 			} catch {}
 		}
 
+		data.memory =  Math.floor(100-os.freemem()/os.totalmem()*100) + "%"
 
-		const system = {
-			mem: Math.floor(100-os.freemem()/os.totalmem()*100)
+		data.dashboard = process.uptime()*1000
+		data.system = os.uptime()*1000
+
+		if (req.query.data) {
+			res.send(JSON.stringify(data))
+			return
 		}
 
-		data.uptime.dashboard = process.uptime()*1000
-		data.uptime.system = os.uptime()*1000
 		res.render("admin", {user: req.session.user, title: "Admin", sidebar: "admin",
-			uptimes: data.uptime, logs: logs, system: system
+			data: data, logs: logs
 		})
 	}
 

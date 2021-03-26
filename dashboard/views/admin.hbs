@@ -19,7 +19,7 @@
 				<div class="form-inline d-flex">
 					<label class="w-100">Memory usage</label>
 					<div class="progress rounded-0 flex-fill" style="height: 2em">
-						<div class="progress-bar" style="width: {{system.mem}}%">{{system.mem}}%</div>
+						<div class="progress-bar" name="memory"></div>
 					</div>
 				</div>
 			</div>
@@ -32,7 +32,7 @@
 	</div>
 </div>
 <script>
-	const uptimes = {{{dump uptimes}}}
+	var data = {{{dump data}}}
 </script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/humanize-duration/3.25.1/humanize-duration.min.js"></script>
 <script src="/admin.js" defer="true"></script>

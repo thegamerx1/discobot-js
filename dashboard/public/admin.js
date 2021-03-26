@@ -1,5 +1,5 @@
-const page1 = $("#tabby")
-const tabby = new Tabby(page1[0], $(".sidebar-menu")[0])
+const page = $("#tabby")
+const tabby = new Tabby(page[0], $(".sidebar-menu")[0])
 tabby.after = (e) => {
 	if (e.getAttribute("id") == "logs") {
 		let scrolly = e.querySelector("pre")
@@ -8,36 +8,46 @@ tabby.after = (e) => {
 }
 
 tabby.enable("manage")
-uptimes.now = performance.now()
-uptimes.bot = parseFloat(uptimes.bot)
-uptimes.dashboard = parseFloat(uptimes.dashboard)
-uptimes.system = parseFloat(uptimes.system)
+data.now = performance.now()
 
 refresh()
 setInterval(refresh, 1000)
+var requestInterval = setInterval(request, 10000)
 
 function prettyTime(time, diff) {
+	if (time == 0) return "Down"
 	return humanizeDuration(time + diff, {round: true})
 }
 
 function refresh() {
-	const diff = performance.now() - uptimes.now
-	page1.find("[name=bot]").val(prettyTime(uptimes.bot, diff))
-	page1.find("[name=dashboard]").val(prettyTime(uptimes.dashboard, diff))
-	page1.find("[name=system]").val(prettyTime(uptimes.system, diff))
+	const diff = performance.now() - data.now
+	page.find("[name=memory]").width(data.memory).html(data.memory)
+	page.find("[name=bot]").val(prettyTime(data.bot, diff))
+	page.find("[name=dashboard]").val(prettyTime(data.dashboard, diff))
+	page.find("[name=system]").val(prettyTime(data.system, diff))
 }
 
-function askDash(btn, action) {
-	btn = $("btn")
-	btn.prop("disabled", true)
-	$.post("/admin/" + action, () => {
-		btn.prop("disabled", false)
-	}).fail(e => {
-		halfmoon.initStickyAlert({
-			content: `${e.status}: ${e.responseText || e.statusText}`,
-			title: "Error",
-			alertType: "alert-danger"
-		})
-		btn.prop("disabled", false)
+function request() {
+	$.get("/admin?data=true", (res) => {
+		data.now = performance.now()
+		res = JSON.parse(res)
+		data = Object.assign(data, res)
+	}).fail(() => {
+		clearInterval(requestInterval)
 	})
 }
+
+// function askDash(btn, action) {
+// 	btn = $("btn")
+// 	btn.prop("disabled", true)
+// 	$.post("/admin/" + action, () => {
+// 		btn.prop("disabled", false)
+// 	}).fail(e => {
+// 		halfmoon.initStickyAlert({
+// 			content: `${e.status}: ${e.responseText || e.statusText}`,
+// 			title: "Error",
+// 			alertType: "alert-danger"
+// 		})
+// 		btn.prop("disabled", false)
+// 	})
+// }
