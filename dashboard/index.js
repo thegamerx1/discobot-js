@@ -48,20 +48,11 @@ app.engine("hbs", Handlebars({
 	}
 }))
 app.set("view engine", "hbs")
+routes(app)
 
-app.get("/", routes.index)
-app.get("/guilds", routes.guilds)
-app.get("/dashboard/demo", routes.dashDemo)
-app.get("/dashboard/:id", routes.dashboard)
-app.post("/save/:what/:id", routes.dashSave)
-app.get("/login", routes.login)
-app.get("/logout", routes.logout)
-app.get("/reload", routes.reload)
-app.get("/admin", routes.admin)
-app.get("*", routes.notfound)
 if (process.env.NODE_ENV == "production") {
 	const redirect = express()
-	redirect.get("*", (req, res) => {
+	redirect.all("*", (req, res) => {
 		res.redirect("https://" + req.headers.host + req.url)
 	})
 
