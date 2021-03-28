@@ -39,19 +39,57 @@ module.exports = app => {
 async function setLastCommands() {
 	try {
 		lastCommands = await botTalk.ask("commands")
+		if (!wasUp) {
+			console.log("Bot up!")
+			webhookLog("<@373769618327601152> Bot is up!")
+		}
 		botAlive = true
-		wasUp = true
-		setTimeout(setLastCommands, 30000)
 	} catch {
 		if (wasUp) {
 			console.error("Bot down!")
-			if (process.env.webhook_id) webhook.send("<@373769618327601152> Bot is down!")
+			webhookLog("<@373769618327601152> Bot is down!")
 		}
 		botAlive = false
-		wasUp = false
-		setTimeout(setLastCommands, 5000)
+	}
+	wasUp = botAlive
+	setTimeout(setLastCommands, botAlive ? 30000 : 5000)
+}
+
+function webhookLog(msg) {
+	if (process.env.webhook_id) {
+		webhook.send(msg)
 	}
 }
+
+
+function notAlive(res) {
+	if (!botAlive) {
+		renderError(res, 503, "Currently unavailable")
+		return true
+	}
+}
+
+function notLoggedIn(req) {
+	return !(req.session.user && req.session.token)
+}
+
+function renderError(res, code, more) {
+	res.render("error", {code: code, more: more, desc: http.STATUS_CODES[code], layout: false, title: code})
+}
+
+function parseCommands(commands, disabledcmd) {
+	var disabled = []
+	var enabled = []
+	commands.forEach(cmd => {
+		if (disabledcmd.includes(cmd)) {
+			disabled.push(cmd)
+		} else {
+			enabled.push(cmd)
+		}
+	})
+	return {disabled, enabled}
+}
+
 async function admin(req, res) {
 	if (process.env.NODE_ENV == "production") {
 		if (notLoggedIn(req))
@@ -250,32 +288,4 @@ async function login(req, res) {
 		req.session.user = user
 		res.redirect("/guilds")
 	})
-}
-
-function notAlive(res) {
-	if (!botAlive) {
-		renderError(res, 503, "Currently unavailable")
-		return true
-	}
-}
-
-function notLoggedIn(req) {
-	return !(req.session.user && req.session.token)
-}
-
-function renderError(res, code, more) {
-	res.render("error", {code: code, more: more, desc: http.STATUS_CODES[code], layout: false, title: code})
-}
-
-function parseCommands(commands, disabledcmd) {
-	var disabled = []
-	var enabled = []
-	commands.forEach(cmd => {
-		if (disabledcmd.includes(cmd)) {
-			disabled.push(cmd)
-		} else {
-			enabled.push(cmd)
-		}
-	})
-	return {disabled, enabled}
 }
