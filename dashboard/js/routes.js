@@ -43,8 +43,10 @@ async function setLastCommands() {
 		wasUp = true
 		setTimeout(setLastCommands, 30000)
 	} catch {
-		console.error("Error retrieving commands")
-		if (wasUp && process.env.webhook_id) webhook.send("<@373769618327601152> Bot is down!")
+		if (wasUp) {
+			console.error("Bot down!")
+			if (process.env.webhook_id) webhook.send("<@373769618327601152> Bot is down!")
+		}
 		botAlive = false
 		wasUp = false
 		setTimeout(setLastCommands, 5000)
