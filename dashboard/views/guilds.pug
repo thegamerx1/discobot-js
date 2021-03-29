@@ -5,7 +5,7 @@ append setvars
 	- const title = "Guilds"
 
 append body
-	if guilds
+	if guilds.length > 0
 		div(class="d-flex justify-content-center flex-wrap flex-row")
 			each guild in guilds
 				a(class="card shadow w-350 m-5 p-0 border align-items-center" href="/dashboard/" + guild.id)
