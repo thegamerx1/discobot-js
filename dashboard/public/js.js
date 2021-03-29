@@ -10,3 +10,9 @@ function setProgress(perc) {
 		progress.parent().addClass("d-none")
 	}
 }
+
+async function btnOff(btn, func) {
+	btn.disabled = true
+	await func()
+	btn.disabled = false
+}

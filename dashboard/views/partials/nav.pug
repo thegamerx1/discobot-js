@@ -1,0 +1,59 @@
+nav.navbar#nav
+	if sidebar
+		.navbar-content
+			button(class="btn btn-action" onclick="halfmoon.toggleSidebar()")
+				i.fa.fa-bars
+
+	a(href="/" class="navbar-brand") Discobot
+
+	ul.navbar-nav.d-none.d-md-flex.w-full
+		li(class="nav-item" class={"active": title == "Home"})
+			a(href="/" class="nav-link") Home
+
+		li(class="nav-item" class={"active": title == "Guilds"})
+			a(href="/guilds" class="nav-link") Dashboard
+
+		if user && user.id === process.env.owner
+			li(class="nav-item" class={"active": title == "Admin"})
+				a(href="/admin" class="nav-link") Admin
+
+		if user
+			.dropdown.with-arrow.ml-auto.h-full
+				button(class="btn h-full d-flex align-items-center w-200 justify-content-end rounded-0"
+					   data-toggle="dropdown"
+					   style={"margin-right": "-1rem"}
+				)
+					span(class="text-truncate flex-fill")= user.username
+					if user.avatar
+						img(class="px-5 img-fluid rounded h-half" src="https://cdn.discordapp.com/avatars/" + user.id + "/" + user.avatar)
+					i.fa.fa-angle-down
+
+				.dropdown-menu.dropdown-menu-right
+					a(class="dropdown-item" href="/logout") Logout
+					a(class="dropdown-item" href="/reload") Reload
+					if user.id === process.env.owner
+						a(class="dropdown-item" href="/admin") Admin
+		else
+			a(class="btn btn-primary ml-auto" href="/login")
+				i.fab.fa-discord.pr-5
+				| Login
+
+	div(class="navbar-content d-md-none ml-auto")
+		.dropdown.with-arrow
+			button(class="btn" data-toggle="dropdown")
+				| Menu
+				i.pl-5.fa.fa-angle-down
+
+			.dropdown-menu.dropdown-menu-right.w-200
+				if user
+					h6(class="dropdown-header text-primary")= "Hello " + user.username
+					a(class="dropdown-item" href="/logout") Logout
+					a(class="dropdown-item" href="/reload") Reload
+				else
+					a(href="/login" class="dropdown-item bg-primary")
+						i.fab.fa-discord.pr-5
+						| Login
+
+				.dropdown-divider
+				a(href="/" class="dropdown-item")  Home
+				a(href="/guilds" class="dropdown-item") Dashboard

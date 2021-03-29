@@ -1,0 +1,36 @@
+block setvars
+
+- var sidebarattrib = {}
+if sidebar
+	- sidebarattrib["data-sidebar-type"] = "overlayed-sm-and-down"
+
+doctype html
+html.auto-scaling-disabled
+	head
+		include ../partials/head
+		block links
+	body(class="dark-mode with-custom-webkit-scrollbars with-custom-css-scrollbars")
+		block modals
+		div(class="page-wrapper" class={"with-sidebar": sidebar, "with-navbar": navbar})&attributes(sidebarattrib)
+			if sidebar
+				.sidebar: .sidebar-menu
+					case sidebar
+						when "admin"
+							include ../sidebars/admin
+						when "dashboard"
+							include ../sidebars/dashboard
+			div.sticky-alerts
+			if navbar
+				include ../partials/nav
+			div(class="sidebar-overlay" onclick="halfmoon.toggleSidebar()")
+			block page
+
+			.content-wrapper.d-flex.flex-column
+				div(class="progress rounded-0 d-none progress-bar-animated" id="pageProgressContainer")
+					div.progress-bar#pageProgress
+				block body
+
+	block scripts
+		script(src="/js.js", defer="true")
+		script(src="/lib/jquery.js")
+		script(src="/lib/halfmoon.js")

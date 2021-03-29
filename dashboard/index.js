@@ -6,7 +6,6 @@ const session = require("express-session")
 const helmet = require("helmet")
 const https = require("https")
 const http = require("http")
-const Handlebars = require("express-handlebars")
 const compression = require("compression")
 const fs = require("fs")
 
@@ -39,15 +38,19 @@ app.use(session({
 	saveUninitialized: true,
 	httpOnly: true
 }))
-app.engine("hbs", Handlebars({
-	defaultLayout: "main",
-	extname: ".hbs",
-	helpers: {
-		eq: (v1, v2) => v1 === v2,
-		dump: (obj) => JSON.stringify(obj)
-	}
-}))
-app.set("view engine", "hbs")
+// app.engine("hbs", Handlebars({
+	// 	defaultLayout: "main",
+	// 	extname: ".hbs",
+	// 	helpers: {
+		// 		eq: (v1, v2) => v1 === v2,
+		// 		dump: (obj) => JSON.stringify(obj)
+		// 	}
+// }))
+// app.use(expressLayouts)
+app.set("view engine", "pug")
+app.set("views", "views/")
+app.set("layout", "layouts/main")
+
 routes(app)
 
 if (process.env.NODE_ENV == "production") {

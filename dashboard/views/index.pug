@@ -1,0 +1,11 @@
+extends layouts/main
+
+append setvars
+	- const navbar = true
+	- const title = "Home"
+
+append body
+	.container-fluid
+		.card
+			h2.card-title Want to add the bot?
+			include partials/addbot

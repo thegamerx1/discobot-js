@@ -1,0 +1,59 @@
+extends layouts/main
+
+append setvars
+	- const navbar = true
+	- const sidebar = "dashboard"
+	- const title = "Dashboard"
+
+append links
+	link(rel="stylesheet" href="/prism.css")
+
+append body
+	.content.d-flex.flex-column.flex-fill
+		div(class="container d-none flex-fill" id="dashboard")
+			form#logging.tabby
+				h3 Logging
+				.form-group
+					label Member joins
+					select(name="joins" class="form-control channelSelector")
+						option(value="0") None
+
+				.form-group
+					label Message edits
+					select(name="edits" class="form-control channelSelector")
+						option(value="0") None
+
+				.form-group
+					label Member deletes
+					select(name="deletes" class="form-control channelSelector")
+						option(value="0") None
+
+			form#commands.tabby
+				h3 Commands
+				div(class="d-inline-flex w-full")
+					div(class="d-flex flex-column flex-fill")
+						h4 Disabled
+						div(name="disabled")
+							each val in guild.data.disabled_commands
+								div(class="container border font-size-16 p-5")= val
+
+					div(class="d-flex flex-column flex-fill")
+						h4 Enabled
+						div(name="enabled")
+							each val in guild.data.enabled_commands
+								div(class="container border font-size-16 p-5")= val
+
+		div(id="changes" class="d-none flex-row position-sticky bottom-0 py-5 m-0 w-full card align-items-center")
+			button(class="btn btn-primary" onclick="Submit()") Save
+			button(class="btn btn-link text-danger" onclick="Reset()") Reset
+			i(class="fas fa-cog fa-spin fa-2x d-none")
+			p.ml-auto Changes detected
+
+append scripts
+	script.
+		CHANNELS = !{JSON.stringify(guild.channels)}
+		ID = "#{guild.id}"
+		FORM = !{JSON.stringify(guild.data)}
+	script(src="/dashboard.js" defer="true")
+	script(src="/lib/sortable.js")
+	script(src="/lib/tabby.js")

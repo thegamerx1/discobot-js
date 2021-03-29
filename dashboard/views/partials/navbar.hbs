@@ -1,0 +1,18 @@
+<div
+	class="page-wrapper with-navbar {{#if sidebar}}with-sidebar" data-sidebar-type="overlayed-sm-and-down{{/if}}">
+	<div class="sidebar-overlay" onclick="halfmoon.toggleSidebar()"></div>
+	{{> nav}}
+	<div class="sticky-alerts"></div>
+	{{#if (eq sidebar "admin")}}
+		{{> sidebars/admin}}
+	{{/if}}
+	{{#if (eq sidebar "dashboard")}}
+		{{> sidebars/dashboard}}
+	{{/if}}
+	<div class="content-wrapper">
+		<div class="progress rounded-0 d-none progress-bar-animated" id="pageProgressC">
+			<div class="progress-bar" id="pageProgress"></div>
+			</div>
+		{{{body}}}
+	</div>
+</div>

@@ -1,5 +1,6 @@
 const page = $("#tabby")
 const tabby = new Tabby(page[0], $(".sidebar-menu")[0])
+const modalask = $("#modal-ask")
 tabby.after = (e) => {
 	if (e.getAttribute("id") == "logs") {
 		let scrolly = e.querySelector("pre")
@@ -13,6 +14,7 @@ data.now = performance.now()
 refresh()
 setInterval(refresh, 1000)
 var requestInterval = setInterval(request, 10000)
+var failCount = 0
 
 function prettyTime(time, diff) {
 	if (time == 0) return "Down"
@@ -30,10 +32,36 @@ function refresh() {
 function request() {
 	$.get("/admin?data=true", (res) => {
 		data.now = performance.now()
-		res = JSON.parse(res)
 		data = Object.assign(data, res)
+		failCount = 0
 	}).fail(() => {
-		clearInterval(requestInterval)
+		failCount++
+		if (failCount > 5) clearInterval(requestInterval)
+	})
+}
+
+function askModal(btn, wot) {
+	btn.disabled = true
+	$.get("/admin/" + wot, (data) => {
+		modalask.find("code").html(data)
+	}).fail((e) => {
+		modalask.find("code").html(e.responseText)
+	}).always(() => {
+		modalask.addClass("show")
+		btn.disabled = false
+	})
+}
+
+function ask(btn, wot) {
+	btn.disabled = true
+	$.get("/admin/" + wot, () => {
+		btn.disabled = false
+	}).fail((e) => {
+		halfmoon.initStickyAlert({
+			content: `${e.status}: ${e.responseText || e.statusText}`,
+			title: "Error",
+			alertType: "alert-danger"
+		})
 	})
 }
 

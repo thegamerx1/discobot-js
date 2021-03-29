@@ -1,0 +1,14 @@
+extends layouts/main
+
+append setvars
+	- const title = code
+
+append body
+	.page-wrapper
+		.content-wrapper
+			.card.shadow.border.rounded
+				h2(class="content-title text-secondary font-size-22")
+					i.fas.fa-times.text-danger.font-size-24.pr-5
+					span= "That's a " + code + ", " + desc
+
+				span= more ? more : desc

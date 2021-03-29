@@ -1,0 +1,61 @@
+extends layouts/main
+
+append setvars
+	- const navbar = true
+	- const title = "Admin"
+	- const sidebar = "admin"
+
+append modals
+	div(class="modal modal-full" id="modal-ask" role="dialog")
+		div(class="modal-dialog" role="document"): div.modal-content.w-600
+			a(class="close" role="button" data-dismiss="modal")
+				span &times;
+			.container
+				h5.modal-title Output
+				div(class="overflow-scroll")
+					pre(class="m-0 h-full overflow-scroll"): code.language-git= code
+
+				div(class="text-right mt-20")
+					a(class="btn mr-5" data-dismiss="modal") Close
+
+append body
+	div(class="container-fluid h-full d-none" id="tabby")
+		div#manage.tabby
+			div("d-flex flex-column")
+				.card.mb-0.d-flex.justify-content-center
+					button(class="btn mx-5" onclick="askModal(this, 'status')") Git status
+					button(class="btn mx-5" onclick="askModal(this, 'pull')") Git pull
+					button(class="btn mx-5" onclick="ask(this, 'reload')") Restart dashboard
+					button(class="btn mx-5" onclick="ask(this, 'stop')") Stop dashboard
+
+				.card.mb-0
+					.form-inline
+						label.w-100 Bot
+						input(type="text" class="form-control" value="Loading.." name="bot")
+					.form-inline
+						label.w-100 Dashboard
+						input(type="text" class="form-control" value="Loading.." name="dashboard")
+					.form-inline
+						label.w-100 System
+						input(type="text" class="form-control" value="Loading.." name="system")
+				.card.mb-0
+					div(class="form-inline d-flex")
+						label.w-100 Memory usage
+						div(class="progress rounded-0 flex-fill" style="height: 2em")
+							div(class="progress-bar" name="memory")
+
+		div#logs.tabby.h-full
+			pre(class="h-full overflow-scroll")
+				code(class="language-log")= logs
+
+
+append links
+	link(rel="stylesheet" href="/prism.css")
+
+append scripts
+	script.
+		var data = !{JSON.stringify(data)}
+	script(src="https://cdnjs.cloudflare.com/ajax/libs/humanize-duration/3.25.1/humanize-duration.min.js")
+	script(src="/admin.js" defer="true")
+	script(src="/prism.js")
+	script(src="/lib/tabby.js")
