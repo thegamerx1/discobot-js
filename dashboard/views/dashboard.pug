@@ -42,6 +42,12 @@ append body
 						div(name="enabled")
 							each val in guild.data.enabled_commands
 								div(class="container border font-size-16 p-5")= val
+			form#randomreact.tabby
+				h3 RandomReact
+				div(class="d-inline-flex w-full")
+					.custom-switch
+						input(type="checkbox" id="randomReact" name="randomReact")
+						label(for="randomReact") Random react
 
 		div(id="changes" class="d-none flex-row position-sticky bottom-0 py-5 m-0 w-full card align-items-center")
 			button(class="btn btn-primary" onclick="Submit()") Save

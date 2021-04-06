@@ -5,12 +5,12 @@ const http = require("http")
 const os = require("os")
 const fs = require("fs")
 const child_process = require("child_process")
-const OAuth = require("discord-oauth2")
 botTalk.init(21901, "localhost")
 
 const SAVE_REQUIRED = {
 	logging: ["edits", "deletes", "joins"],
-	commands: []
+	commands: [],
+	randomreact: []
 }
 
 var lastCommands = []

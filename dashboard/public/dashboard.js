@@ -57,7 +57,7 @@ function Submit() {
 	dashboard.addClass("loadd")
 	setProgress(5)
 	var out = undefined
-	var serialized = undefined
+	var serialized = null
 	if (currentForm.attr("id") == "commands") {
 		serialized = serializeCommands()
 		out = {disabled_commands: serialized}
