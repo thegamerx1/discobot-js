@@ -30,7 +30,9 @@ module.exports = app => {
 	})
 	app.get("/reload", reload)
 	app.get("/logout", async (req, res) => {
-		await oauth.revokeToken(req.session.token.access_token)
+		try {
+			await oauth.revokeToken(req.session.token.access_token)
+		} catch {}
 		await req.session.destroy()
 		res.redirect("/")
 	})

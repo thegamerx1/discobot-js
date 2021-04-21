@@ -2,14 +2,16 @@ const Discord = require("discord.js")
 const fs = require("fs")
 const utils = require("utils")._
 const colors = require("colors")
-const {default: ow} = require("ow")
+const { default: ow } = require("ow")
 
-const ARG_WRAPS = [["<", ">"], ["[", "]"]]
-const DEFAULT_GUILD = {prefix: "?"}
+const ARG_WRAPS = [
+	["<", ">"],
+	["[", "]"],
+]
+const DEFAULT_GUILD = { prefix: "?" }
 const DEFAULT_USER = {}
 
 const CODEBLOCK_REGEX = /^(`{1,2}(?!`)(?<code>.*?))`{1,2}|`{3}((?=\w+\n)(?<lang>\w+)\n)(?<block>.*?)`{3}$/s
-
 
 class bot_utils {
 	constructor(client) {
@@ -20,12 +22,11 @@ class bot_utils {
 		nothing = nothing ?? "No output"
 		code = code ?? ""
 		if (sanitize ?? true) {
-			code = code.replace("\`", String.fromCharCode(8203) + "\`")
+			code = code.replace("`", String.fromCharCode(8203) + "`")
 		}
-		if (code.match(/^\s$/m))
-			return nothing
+		if (code.match(/^\s$/m)) return nothing
 
-		return `\`\`\`${lang}\n${code??nothing}\`\`\``
+		return `\`\`\`${lang}\n${code ?? nothing}\`\`\``
 	}
 
 	getCodeblock(code) {
@@ -52,7 +53,9 @@ class Bot {
 		this.plugins = {}
 		this.settings = {}
 		this.client = new Discord.Client()
-		this.client.on("disconnect", () => {console.error("I disconnec send help", arguments)})
+		this.client.on("disconnect", () => {
+			console.error("I disconnec send help", arguments)
+		})
 		this.client.on("ready", () => {
 			this.client.on("guildCreate", guild => console.log("Joined" + guild.name))
 			this.client.on("message", this.onMessage.bind(this))
@@ -60,7 +63,7 @@ class Bot {
 		})
 		this.client.login(process.env.token)
 		this.utils = new bot_utils(this.client)
-		setInterval(this.save.bind(this), 15*60*1000)
+		setInterval(this.save.bind(this), 15 * 60 * 1000)
 	}
 
 	save() {
@@ -80,13 +83,12 @@ class Bot {
 		})
 	}
 
-
 	async onMessage(msg) {
 		if (msg.author.bot) return
 
 		msg.data = {
 			user: this.getUser(msg.author),
-			guild: this.getGuild(msg.guild)
+			guild: this.getGuild(msg.guild),
 		}
 
 		let params = msg.content.match(/[^ ""']+|"([^""]+)"/g)
@@ -94,13 +96,12 @@ class Bot {
 		let output = this.getCommand(params[0], msg.data.guild.prefix)
 		if (output == null) return
 
-		const {plugin, meta} = output
+		const { plugin, meta } = output
 
 		if (params) {
 			params.splice(0, 1)
-			const length = (meta.args?.length ?? 1)
-			if (params.length > length)
-				params[length-1] = params.splice(length-1).join(" ")
+			const length = meta.args?.length ?? 1
+			if (params.length > length) params[length - 1] = params.splice(length - 1).join(" ")
 			params.size = length
 		}
 
@@ -125,8 +126,7 @@ class Bot {
 		if (meta.args) {
 			for (const [i, arg] of meta.args.entries()) {
 				try {
-					if (arg.ow)
-						arg.ow(params[i])
+					if (arg.ow) arg.ow(params[i])
 				} catch (e) {
 					let usage = meta.command
 					meta.args.forEach(arg => {
@@ -134,13 +134,18 @@ class Bot {
 					})
 					const embed = new Discord.MessageEmbed()
 						.setColor("A1363D")
-						.setDescription(`**${e.message.replace("argument", "*" + this.wrapArg(arg.name, arg.optional) + "*")}**`)
+						.setDescription(
+							`**${e.message.replace(
+								"argument",
+								"*" + this.wrapArg(arg.name, arg.optional) + "*"
+							)}**`
+						)
 						.addField("Usage", "`" + usage + "`", true)
 					msg.channel.send(embed)
 					return
 				}
 			}
-			params.forEach((arg, i) =>{
+			params.forEach((arg, i) => {
 				const match = arg.match(/^\"?(.*?)\"?$/)
 				params[i] = match ? match[1] : params[i]
 			})
@@ -159,12 +164,12 @@ class Bot {
 		name = name.slice(prefix.length)
 
 		for (const plug in this.plugins) {
-			const {plugin} = this.plugins[plug]
+			const { plugin } = this.plugins[plug]
 			const meta = plugin.meta
 			let possible = [meta.command].concat(meta.aliases)
 
 			if (possible.includes(name.toLowerCase())) {
-				return {plugin, meta}
+				return { plugin, meta }
 			}
 		}
 	}
@@ -186,19 +191,18 @@ class Bot {
 	addPlugin(creator, start) {
 		const plugin = new creator(this.client, this)
 		const meta = plugin.meta
-		if (typeof meta.name == "object")
-			this.removePlugin(meta.name)
+		if (typeof meta.name == "object") this.removePlugin(meta.name)
 
 		this.plugins[meta.name] = {
 			plugin: plugin,
-			events: []
+			events: [],
 		}
 
 		const { events } = this.plugins[meta.name]
 		if (meta.events) {
 			meta.events.forEach(event => {
 				const func = plugin["on" + utils.pascalcase(event)].bind(plugin)
-				events.push({name: event, fn: func})
+				events.push({ name: event, fn: func })
 				this.client.on(event, func)
 			})
 		}
@@ -226,7 +230,7 @@ class Bot {
 			}
 		}
 		for (const plug in this.plugins) {
-			const {plugin} = this.plugins[plug]
+			const { plugin } = this.plugins[plug]
 			plugin.init()
 		}
 		if (errored.length === 0) console.log(colors.green("(Re)loaded plugins successfully"))
@@ -234,10 +238,9 @@ class Bot {
 	}
 
 	removePlugin(name) {
-		if (typeof this.plugins[name] != "object")
-			throw new Error(`Plugin ${name} is not loaded`)
+		if (typeof this.plugins[name] != "object") throw new Error(`Plugin ${name} is not loaded`)
 
-		const { plugin, events }  = this.plugins[name]
+		const { plugin, events } = this.plugins[name]
 
 		events.forEach(event => {
 			this.client.removeListener(event.name, event.fn)
