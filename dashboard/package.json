@@ -1,6 +1,6 @@
 {
   "scripts": {
-    "run": "node index"
+    "start": "node index"
   },
   "dependencies": {
     "compression": "^1.7.4",

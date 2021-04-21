@@ -8,4 +8,4 @@ RUN yarn install
 COPY . .
 
 EXPOSE 80
-CMD [ "yarn", "run" ]
+CMD [ "yarn", "start" ]

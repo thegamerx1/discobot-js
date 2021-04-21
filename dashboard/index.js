@@ -6,25 +6,26 @@ const session = require("express-session")
 const helmet = require("helmet")
 const http = require("http")
 const compression = require("compression")
-const fs = require("fs")
 
 var app = express()
 app.use(express.static("public/"))
 app.use(compression())
-app.use(helmet({contentSecurityPolicy: false}))
-app.use(express.urlencoded({extended: true}))
-app.use(session({
-	secret: process.env.secret,
-	resave: true,
-	saveUninitialized: true,
-	httpOnly: true
-}))
+app.use(helmet({ contentSecurityPolicy: false }))
+app.use(express.urlencoded({ extended: true }))
+app.use(
+	session({
+		secret: process.env.secret,
+		resave: true,
+		saveUninitialized: true,
+		httpOnly: true,
+	})
+)
 app.set("view engine", "pug")
 app.set("views", "views/")
 app.set("layout", "layouts/main")
 
 routes(app)
-http.createServer(app).listen(4000, ready)
+http.createServer(app).listen(process.env.port || 80, ready)
 
 function ready() {
 	console.debug("Ready!")
