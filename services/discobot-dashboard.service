@@ -1,0 +1,23 @@
+[Unit]
+Description=Discobot-dashboard
+After=network.target
+
+[Service]
+WorkDir=/srv/discobot-js/dashboard
+Environment="NODE_ENV=production"
+Environment="APP_PORT=7001"
+
+Environment="owner=373769618327601152"
+Environment="client_id=514110074931642376"
+Environment="client_secret=bb8ijV3EIkyVVMNgGsdCPUHCOQE8R1gk"
+Environment="redirect_uri=https://discobot.ndrx.ml/login"
+Environment="scopes=identify guilds"
+Environment="secret=myverycoolfuckingsecret69"
+Environment="webhook_id=825790060250267669"
+Environment="webhook_token=utW9pP_fztZDBnUIxGEmkfDGOmXMK6QFp7P80uF7aJUFXxX1u_c2s65x5LKTEygbRXvX"
+Type=simple
+ExecStart=/usr/bin/node index.js
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target
